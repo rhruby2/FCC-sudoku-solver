@@ -20,7 +20,7 @@ module.exports = function (app) {
      *    valid: Boolean,
      *    conflict: "row"|"column"|"region"
      *  }
-     *  | { error: 'Invalid characters in puzzle' } - puzzle string contrains values which are not numbers or periods
+     *  | { error: 'Invalid characters in puzzle' } - puzzle string contains values which are not numbers or periods
      *  | { error: 'Expected puzzle to be 81 characters long' }
      *  | { error: 'Required field(s) missing' } - OBJECT submitted to route is missing puzzle, coordinate, or value
      *  | { error: 'Invalid coordinate'} - submitted coordinate is out of bounds
@@ -88,6 +88,17 @@ module.exports = function (app) {
     });
     
   app.route('/api/solve')
+    /**
+     * Attempts to solve a sudoku puzzle from passed puzzle string
+     * 
+     * @returns {
+     *  { solution: String } - puzzle string was valid and able to be solved
+     *  | { error: 'Required field missing' } - puzzle string missing from parameters
+     *  | { error: 'Invalid characters in puzzle'} - puzzle string contains values which are not numbers or periods
+     *  | { error: 'Expected puzzle to be 81 characters long' }
+     *  | { error: 'Puzzle cannot be solved' } - if puzzle is invalid or cannot be solved
+     * }
+     */
     .post(({body:{puzzle}}, res) => {
       console.log(puzzle);
 
