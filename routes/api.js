@@ -28,21 +28,16 @@ module.exports = function (app) {
      * }
      */
     .post(({body: {puzzle, coordinate, value}}, res) => {
-      console.log(puzzle, coordinate, value);
-
+      ////console.log(puzzle, coordinate, value);
       try{
         //check for empty property values in returned req.body object
         if(!value || !coordinate || !puzzle){
           throw Error('Required field(s) missing');
         }
-        //check for exact puzzle length
-        if(puzzle.length != 81){
-          throw Error('Expected puzzle to be 81 characters long');
-        }
-        //check for invalid characters in puzzle string (not numbers or periods)
-        if(/[^\.\d]/.test(puzzle) ){
-          throw Error('Invalid characters in puzzle');
-        }
+        
+        //checks for valid 81 characters in puzzle string
+        solver.validate(puzzle);
+
         //check for out of bounds coordinate
         //  coordinate is missing row or column OR coordinate contains extraneous data
         //  row is not between A-I inclusive
@@ -57,7 +52,7 @@ module.exports = function (app) {
         }
 
       }catch(e){
-        console.log(`   ERROR: ${e.message}`);
+        //console.log(`   ERROR: ${e.message}`);
         res.send({error: e.message});
       }
 
@@ -65,26 +60,23 @@ module.exports = function (app) {
       let row = coordinate.charCodeAt(0)-65 + 1;
       let column = coordinate[1];
 
-      let conflict = [];
+      let conflicts = [];
       if(!solver.isRowPlacementValid(puzzle, row, column, null, value)){
-        conflict.push('row');
+        conflicts.push('row');
       }
       if(!solver.isColumnPlacementValid(puzzle,row,column, null, value)){
-        conflict.push('column');
+        conflicts.push('column');
       }
       if(!solver.isRegionPlacementValid(puzzle,row,column, null, value)){
-        conflict.push('region');
+        conflicts.push('region');
       }
 
-      if(conflict.length == 0){
+      if(conflicts.length == 0){
         res.send({valid: true});
       } else {
-        res.send({valid: false, conflict: conflict.join(', ')});
+        res.send({valid: false, conflict: conflicts});
       }
-      console.log(`conflict: ${conflict}`);
-
-
-
+      ////console.log(`conflict: ${conflict}`);
     });
     
   app.route('/api/solve')
@@ -100,13 +92,26 @@ module.exports = function (app) {
      * }
      */
     .post(({body:{puzzle}}, res) => {
-      console.log(puzzle);
+      ////console.log(puzzle);
 
-      let result = solver.solve(puzzle);
-      if(result){
-        res.send({
-          solution: result
-        });
+      try{
+        //checks for valid 81 characters in puzzle string
+        solver.validate(puzzle);
+      }catch(e){
+        //console.log(`   ERROR: ${e.message}`);
+        res.send({error: e.message});
+      }
+
+      try{
+        let result = solver.solve(puzzle);
+        if(result){
+          res.send({
+            solution: result
+          });
+        }
+      } catch(e){
+        //console.log(`   ERROR: ${e.message}`);
+        res.send({error: e.message});
       }
     });
 };

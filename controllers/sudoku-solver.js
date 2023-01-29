@@ -1,17 +1,3 @@
-class Node {
-  constructor(data){
-    this.data = data;
-    this.next = null;
-    this.previous = null;
-  }
-}
-
-class LinkedList {
-  constructor(head=null){
-    this.head = head;
-  }
-}
-
 /**
  * Note: 
  * puzzleString parameter is passed as a string while solve() uses a string [].
@@ -34,7 +20,7 @@ class SudokuSolver {
       msg.push(puzzle[i]);
     }
 
-    console.log('  ' + msg.join('  '));
+    ////console.log('  ' + msg.join('  '));
   }
 
   getIndex(row, column){
@@ -50,12 +36,29 @@ class SudokuSolver {
   }
 
   /**
-   * Validate all placements in puzzle before submitting solution
+   * Checks input puzzle for 81 valid characters
+   * @param {string} puzzle - input puzzle string
+   */
+  validate(puzzle){
+    //check for exact puzzle length
+    if(puzzle.length != 81){
+      throw Error('Expected puzzle to be 81 characters long');
+    }
+    //check for invalid characters in puzzle string (not numbers or periods)
+    if(/[^\.\d]/.test(puzzle) ){
+      throw Error('Invalid characters in puzzle');
+    }
+
+    return true;
+  }
+
+  /**
+   * Validate all placements in puzzle before submitting resulting solution
    * @param {string []} puzzle 
    */
   allValid(puzzle) {
-    console.log("TESTING ALL VALID...");
-    let valid = true;
+    //console.log("TESTING ALL VALID...");
+    let isValid = true;
     
     /*
     return puzzle.every((value, i, puzzle) => {
@@ -65,11 +68,11 @@ class SudokuSolver {
 
     for(let i = 0; i < puzzle.length; i++){
       if( !this.isValidPlacement(puzzle, i, puzzle[i]) ){
-        console.log(`${puzzle[i]} IS NOT VALID AT ${i}`);
-        valid = false;
+        //console.log(`${puzzle[i]} IS NOT VALID AT ${i}`);
+        isValid = false;
       }
     }
-    return valid;
+    return isValid;
   }
 
   /**
@@ -136,7 +139,7 @@ class SudokuSolver {
     if(column  === null) column = this.getColumn(valueIndex);
 
     let startingColIndex = column - 1;
-    //console.log(`starting column index: ${startingColIndex}`);
+    ////console.log(`starting column index: ${startingColIndex}`);
 
     for(let i = 0; i < 9; i++){
       let currIndex = startingColIndex + (i * 9);
@@ -172,11 +175,11 @@ class SudokuSolver {
 
     let regionRow = Math.floor((row-1)/3) + 1;
     let regionColumn = Math.floor((column-1)/3) + 1;
-    //console.log(`region (R,C): (${regionRow},${regionColumn})`);
+    ////console.log(`region (R,C): (${regionRow},${regionColumn})`);
 
     //find top left index of region
     let topLeftIndex = ( (regionRow-1) * 3 * 9 ) + ( (regionColumn-1) * 3 );
-    //console.log(`top left index: ${topLeftIndex}`);
+    ////console.log(`top left index: ${topLeftIndex}`);
     
     //loop through region
     for(let i = 0; i < 9; i++){
@@ -197,6 +200,11 @@ class SudokuSolver {
     return true;
   }
 
+  /**
+   * 
+   * @param {string[]} puzzleString 
+   * @returns 
+   */
   solve(puzzleString) {
     const ALGORITHM = 1;
 
@@ -206,17 +214,22 @@ class SudokuSolver {
       result = this.backtrackingAlgorithm(puzzleString);
     }
 
-    console.log('FINAL result');
-    console.log(result);
+    ////console.log('FINAL result');
+    ////console.log(result);
 
+    //recheck for correct placements before submitting result
     if(result.msg === "Success"){
       if(this.allValid(result.result)){
-        console.log("ALL VALID");
+        //console.log("ALL VALID");
         return result.result;
       }else {
-        console.log("NOT ALL VALID");
-        return result.result;
+        //console.log("NOT ALL VALID");
+        throw Error("Internal Error: invalid solution");
       }
+    }
+    if(result.msg === "Unsolvable"){
+      //console.log("UNSOLVABLE");
+      throw Error("Puzzle cannot be solved");
     }
   }
 
@@ -225,7 +238,7 @@ class SudokuSolver {
     let fixed = initial.map((char) => {
       return char !== ".";
     });
-    console.log(fixed);
+    ////console.log(fixed);
 
     for(let i = 0; i < initial.length; i++){
       //combine fixed values from puzzleString into inital array
@@ -238,8 +251,8 @@ class SudokuSolver {
       }
     }
 
-    console.log('initial');
-    console.log(initial);
+    ////console.log('initial');
+    ////console.log(initial);
     
     return this.backtrackingAlgorithmHelper(initial, fixed);
   }
@@ -265,7 +278,7 @@ class SudokuSolver {
     
     //ENDING CASE - finished solve
     if(currIndex >= result.length) {
-      console.log('FINAL PUZZLE');
+      //console.log('FINAL PUZZLE');
       this.printPuzzle(result);
       return {msg: "Success", result: result};
     }
@@ -289,13 +302,13 @@ class SudokuSolver {
     //if valid, recurse forward, (greater than 9 would signify backtracking needed)
     if(Number(result[currIndex]) <= 9) {
       if(currIndex == 0) {
-        console.log(`valid ${result[currIndex]} at ${currIndex}`);
+        //console.log(`valid ${result[currIndex]} at ${currIndex}`);
         this.printPuzzle(result);
       }
       return this.backtrackingAlgorithmHelper(result, fixed, ++currIndex, false);
     } else {
       // BACKTRACK //
-      //console.log(`backtracking from ${currIndex}`);
+      ////console.log(`backtracking from ${currIndex}`);
       return this.backtrackingAlgorithmHelper(result, fixed, --currIndex, true);
     }
   }
@@ -312,11 +325,11 @@ class SudokuSolver {
 
       //ENDING CASE - finished solve
       if(currIndex >= result.length) {
-        console.log('FINAL PUZZLE');
+        //console.log('FINAL PUZZLE');
         this.printPuzzle(result);
         return {msg: "Success", result: result};
       }
-      //ENDING CASE - unsolvable
+      //ENDING CASE - unsolvable, maxed out backtracking
       if(currIndex < 0) return {msg: "Unsolvable"};
 
       //clear all non-fixed numbers in result after current position
@@ -334,13 +347,13 @@ class SudokuSolver {
 
       //if valid, recurse forward, (greater than 9 would signify backtracking needed)
       if(Number(result[currIndex]) <= 9) {
-        //console.log(`valid at ${currIndex}`);
+        //////console.log(`valid at ${currIndex}`);
         //return this.backtrackingAlgorithmHelper(result, fixed, ++currIndex, false);
         ++currIndex;
         backtrack = false;
       } else {
         // BACKTRACK //
-        //console.log(`backtracking from ${currIndex}`);
+        //////console.log(`backtracking from ${currIndex}`);
         //return this.backtrackingAlgorithmHelper(result, fixed, --currIndex, true);
         --currIndex;
         backtrack = true;
