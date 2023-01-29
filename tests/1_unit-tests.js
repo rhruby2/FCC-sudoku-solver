@@ -88,7 +88,7 @@ suite('Unit Tests', () => {
             let inputPuzzle = puzzlesAndSolutions[0][0];
             let correctSolution = puzzlesAndSolutions[0][1];
 
-            let result = solver.solve(inputPuzzle).join('');
+            let result = solver.solve(inputPuzzle);
 
             assert.equal(result, correctSolution, "algorithmic solution should match posted solution");       
         })

@@ -221,7 +221,7 @@ class SudokuSolver {
     if(result.msg === "Success"){
       if(this.allValid(result.result)){
         //console.log("ALL VALID");
-        return result.result;
+        return result.result.join('');
       }else {
         //console.log("NOT ALL VALID");
         throw Error("Internal Error: invalid solution");

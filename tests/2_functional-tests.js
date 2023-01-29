@@ -16,7 +16,7 @@ suite('Functional Tests', () => {
                     'puzzle': puzzlesAndSolutions[0][0]
                 })
                 .end((err,{body:{solution}}) => {
-                    assert.equal(solution.join(''), puzzlesAndSolutions[0][1]);
+                    assert.equal(solution, puzzlesAndSolutions[0][1]);
                 })
         })
         test('Solve a puzzle with missing puzzle string', () => {
